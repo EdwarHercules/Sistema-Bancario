@@ -31,7 +31,7 @@ This repository contains the source code and necessary resources for the project
 2. **Configure Environment Variables**: If necessary, configure the following environment variables in your development environment:
 
    ```properties
-   SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3308/sistema_bancario
+   SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3307/sistema_bancario
    SPRING_DATASOURCE_USERNAME= designated_host
    SPRING_DATASOURCE_PASSWORD= designated_password
    SPRING_RABBITMQ_HOST=localhost

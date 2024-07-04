@@ -1,12 +1,19 @@
 package com.prueba.test.Controllers;
 
 import com.prueba.test.Entity.Movimiento;
+import com.prueba.test.Exceptions.CuentaNoEncontradaException;
+import com.prueba.test.Exceptions.SaldoInsuficienteException;
+import com.prueba.test.Objects.MovimientoDTO;
+import com.prueba.test.Objects.MovimientoListadoDTO;
+import com.prueba.test.Objects.MovimientoObjectDTO;
 import com.prueba.test.Services.MovimientoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,29 +26,55 @@ public class MovimientoController {
 
     // Endpoint para obtener todos los movimientos
     @GetMapping
-    public ResponseEntity<List<Movimiento>> obtenerTodosMovimientos(){
-        List<Movimiento> movimientos = movimientoService.obtenerTodosmovimientos();
+    public ResponseEntity<List<MovimientoListadoDTO>> obtenerTodosMovimientos(){
+        List<MovimientoListadoDTO> movimientos = movimientoService.obtenerTodosMovimientos();
         return new ResponseEntity<>(movimientos, HttpStatus.OK);
     }
 
     // Endpoint para crear un nuevo movimiento
-    @PostMapping
-    public ResponseEntity<Movimiento> crearMovimiento(@RequestBody Movimiento movimiento){
-        Movimiento nuevoMovimiento = movimientoService.crearMovimiento(movimiento);
-        return new ResponseEntity<>(nuevoMovimiento, HttpStatus.CREATED);
+    @PostMapping("/crear")
+    public ResponseEntity<Movimiento> crearMovimiento(@RequestBody MovimientoDTO movimientoDTO){
+        try {
+            Movimiento nuevoMovimiento = movimientoService.crearMovimiento(movimientoDTO);
+            return new ResponseEntity<>(nuevoMovimiento, HttpStatus.CREATED);
+        } catch (CuentaNoEncontradaException | SaldoInsuficienteException | IllegalArgumentException e){
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     // Endpoint para obtener un movimiento por su ID
     @GetMapping("/{id}")
-    public  ResponseEntity<Movimiento> obtenerMovimientoPorId(@PathVariable("id") Long id){
-        Optional<Movimiento> movimiento = movimientoService.obtenerMovimientoPorId(id);
+    public  ResponseEntity<MovimientoListadoDTO> obtenerMovimientoPorId(@PathVariable("id") Long id){
+        Optional<MovimientoListadoDTO> movimiento = movimientoService.obtenerMovimientoPorId(id);
         return movimiento.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Endpoint para actualizar un movimiento existente
     @PutMapping("/{id}")
+    public ResponseEntity<MovimientoObjectDTO> actualizarMovimiento(@PathVariable("id") Long id, @RequestBody MovimientoObjectDTO movimientoDTO){
+        MovimientoObjectDTO movimientoActualizado = movimientoService.actualizarMovimiento(id, movimientoDTO);
+        if (movimientoActualizado != null) {
+            return new ResponseEntity<>(movimientoActualizado, HttpStatus.OK);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarMovimiento(@PathVariable("id") Long id){
         movimientoService.eliminarMovimiento(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/buscarPorFechaYCliente")
+    public ResponseEntity<List<MovimientoListadoDTO>> obtenerMovimientosPorFechaYCliente(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate fechaFin,
+            @RequestParam Long clienteId){
+
+        List<MovimientoListadoDTO> movimientos = movimientoService.obtenerMovimientosPorFechaYCliente(fechaInicio,fechaFin,clienteId);
+        return  new ResponseEntity<>(movimientos, HttpStatus.OK);
+    }
+
+
 }

@@ -1,10 +1,13 @@
 package com.prueba.test.Services;
 
-
 import com.prueba.test.Entity.Cliente;
+import com.prueba.test.Entity.Persona;
+import com.prueba.test.Objects.ClienteDTO;
 import com.prueba.test.Repositories.ClienteRepository;
+import com.prueba.test.Repositories.PersonaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,13 +17,27 @@ public class ClienteService {
     @Autowired
     private ClienteRepository clienteRepository;
 
+    @Autowired
+    private PersonaRepository personaRepository;
+
     // metodo para crear un cliente
-    public Cliente crearCliente(Cliente cliente){
+    @Transactional
+    public Cliente crearCliente(ClienteDTO clienteDTO){
+        Persona persona = new Persona(clienteDTO.getNombre(), clienteDTO.getGenero(),
+                clienteDTO.getEdad(), clienteDTO.getIdentificacion(), clienteDTO.getDireccion(),
+                clienteDTO.getTelefono());
+        persona = personaRepository.save(persona);
+
+        Cliente cliente = new Cliente();
+        cliente.setPassword(clienteDTO.getPassword());
+        cliente.setEstado(true);
+        cliente.setPersona(persona);
+
         return clienteRepository.save(cliente);
     }
 
     // Metodo para obtener todos los clientes
-    public List<Cliente> obtenerTodosclientes(){
+    public List<Cliente> obtenerTodosClientes(){
         return clienteRepository.findAll();
     }
 
@@ -30,17 +47,47 @@ public class ClienteService {
     }
 
     // Metodo para actualizar un cliente
-    public Cliente actualizarCliente(Long id, Cliente clienteActualizado){
-        if (clienteRepository.existsById(id)){
-            clienteActualizado.setId(id);
-            return clienteRepository.save(clienteActualizado);
+    @Transactional
+    public ClienteDTO actualizarCliente(Long id, ClienteDTO clienteDTO) {
+        Optional<Cliente> clienteExistenteOptional = clienteRepository.findById(id);
+        if (clienteExistenteOptional.isPresent()) {
+            Cliente clienteExistente = clienteExistenteOptional.get();
+
+            // Actualizar los datos del cliente existente con los datos del DTO
+            Persona persona = clienteExistente.getPersona();
+            persona.setNombre(clienteDTO.getNombre());
+            persona.setGenero(clienteDTO.getGenero());
+            persona.setEdad(clienteDTO.getEdad());
+            persona.setIdentificacion(clienteDTO.getIdentificacion());
+            persona.setDireccion(clienteDTO.getDireccion());
+            persona.setTelefono(clienteDTO.getTelefono());
+
+            clienteExistente.setPassword(clienteDTO.getPassword());
+
+            // Guardar y retornar el cliente actualizado
+            clienteExistente = clienteRepository.save(clienteExistente);
+            return convertirAClienteDTO(clienteExistente);
         }
-        return null;
+        return null; // Manejar el caso donde el cliente no existe
     }
+
 
     // Metodo para eliminar un cliente por su ID
     public void eliminarCliente(Long id){
         clienteRepository.deleteById(id);
     }
-}
 
+
+    private ClienteDTO convertirAClienteDTO(Cliente cliente) {
+        ClienteDTO clienteDTO = new ClienteDTO();
+        clienteDTO.setId(cliente.getId());
+        clienteDTO.setNombre(cliente.getPersona().getNombre());
+        clienteDTO.setGenero(cliente.getPersona().getGenero());
+        clienteDTO.setEdad(cliente.getPersona().getEdad());
+        clienteDTO.setIdentificacion(cliente.getPersona().getIdentificacion());
+        clienteDTO.setDireccion(cliente.getPersona().getDireccion());
+        clienteDTO.setTelefono(cliente.getPersona().getTelefono());
+        clienteDTO.setPassword(cliente.getPassword());
+        return clienteDTO;
+    }
+}

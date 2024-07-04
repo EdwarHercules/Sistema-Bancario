@@ -1,22 +1,65 @@
 package com.prueba.test.Entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import org.hibernate.proxy.pojo.bytebuddy.ByteBuddyInterceptor;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import java.io.Serializable;
 
 @Entity
+@Table(name = "persona")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
 public class Persona {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "nombre")
     private String nombre;
+
+    @Column(name = "genero")
     private String genero;
-    private int edad;
+
+    @Column(name = "edad")
+    private Integer edad;
+
+    @Column(name = "identificacion")
     private String identificacion;
+
+    @Column(name = "direccion")
     private String direccion;
+
+    @Column(name = "telefono")
     private String telefono;
 
+    @JsonIgnore
+    public ByteBuddyInterceptor getHibernateInterceptor() {
+        // Método que devuelve el interceptor de Hibernate
+        return null; // O manejo apropiado según tu lógica
+    }
+
+    public Persona(String nombre, String genero, Integer edad, String identificacion, String direccion, String telefono) {
+        this.nombre = nombre;
+        this.genero = genero;
+        this.edad = edad;
+        this.identificacion = identificacion;
+        this.direccion = direccion;
+        this.telefono = telefono;
+    }
+
+    public Persona(Long id, String nombre, String genero, Integer edad, String identificacion, String direccion, String telefono) {
+        this.id = id;
+        this.nombre = nombre;
+        this.genero = genero;
+        this.edad = edad;
+        this.identificacion = identificacion;
+        this.direccion = direccion;
+        this.telefono = telefono;
+    }
+
+    public Persona() {
+    }
 
     public Long getId() {
         return id;
@@ -42,11 +85,11 @@ public class Persona {
         this.genero = genero;
     }
 
-    public int getEdad() {
+    public Integer getEdad() {
         return edad;
     }
 
-    public void setEdad(int edad) {
+    public void setEdad(Integer edad) {
         this.edad = edad;
     }
 
@@ -71,19 +114,6 @@ public class Persona {
     }
 
     public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-
-    public Persona() {
-    }
-
-    public Persona(Long id, String nombre, String genero, int edad, String identificacion, String direccion, String telefono) {
-        this.id = id;
-        this.nombre = nombre;
-        this.genero = genero;
-        this.edad = edad;
-        this.identificacion = identificacion;
-        this.direccion = direccion;
         this.telefono = telefono;
     }
 }

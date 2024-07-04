@@ -1,20 +1,56 @@
 package com.prueba.test.Entity;
 
+import com.prueba.test.Objects.MovimientoDTO;
+import com.prueba.test.Objects.MovimientoListadoDTO;
 import jakarta.persistence.*;
-
+import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
-public class Movimiento {
+@Table(name = "movimiento")
+public class Movimiento{
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "fecha")
+    @Temporal(TemporalType.DATE)
     private LocalDate fecha;
+
+    @Column(name = "tipo_movimiento")
     private String tipoMovimiento;
-    private double valor;
-    private double saldo;
-    @ManyToOne
+
+    @Column(name = "valor")
+    private Double valor;
+
+    @Column(name = "saldo")
+    private Double saldo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cuenta_id")
     private Cuenta cuenta;
+
+    public Movimiento() {
+    }
+
+    public Movimiento(LocalDate fecha, String tipoMovimiento, Double valor, Double saldo, Cuenta cuenta) {
+        this.fecha = fecha;
+        this.tipoMovimiento = tipoMovimiento;
+        this.valor = valor;
+        this.saldo = saldo;
+        this.cuenta = cuenta;
+    }
+
+    public Movimiento(Long id, LocalDate fecha, String tipoMovimiento, Double valor, Double saldo, Cuenta cuenta) {
+        this.id = id;
+        this.fecha = fecha;
+        this.tipoMovimiento = tipoMovimiento;
+        this.valor = valor;
+        this.saldo = saldo;
+        this.cuenta = cuenta;
+    }
 
     public Long getId() {
         return id;
@@ -40,19 +76,19 @@ public class Movimiento {
         this.tipoMovimiento = tipoMovimiento;
     }
 
-    public double getValor() {
+    public Double getValor() {
         return valor;
     }
 
-    public void setValor(double valor) {
+    public void setValor(Double valor) {
         this.valor = valor;
     }
 
-    public double getSaldo() {
+    public Double getSaldo() {
         return saldo;
     }
 
-    public void setSaldo(double saldo) {
+    public void setSaldo(Double saldo) {
         this.saldo = saldo;
     }
 
@@ -64,15 +100,5 @@ public class Movimiento {
         this.cuenta = cuenta;
     }
 
-    public Movimiento() {
-    }
-
-    public Movimiento(Long id, LocalDate fecha, String tipoMovimiento, double valor, double saldo, Cuenta cuenta) {
-        this.id = id;
-        this.fecha = fecha;
-        this.tipoMovimiento = tipoMovimiento;
-        this.valor = valor;
-        this.saldo = saldo;
-        this.cuenta = cuenta;
-    }
 }
+

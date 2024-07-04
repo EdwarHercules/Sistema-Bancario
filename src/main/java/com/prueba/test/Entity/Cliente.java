@@ -1,33 +1,50 @@
 package com.prueba.test.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import java.io.Serializable;
 
 @Entity
-public class Cliente extends  Persona{
-    private  Long clienteId;
+@Table(name = "cliente")
+public class Cliente{
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long clienteId;
+
+    @Column(name = "password")
     private String password;
-    private boolean estado;
 
-    @OneToMany(mappedBy = "cliente")
-    private List<Cuenta> cuentas;
+    @Column(name = "estado")
+    private Boolean estado;
 
-    public List<Cuenta> getCuentas() {
-        return cuentas;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "persona_id")
+    private Persona persona;
+
+    public Cliente() {
     }
 
-    public void setCuentas(List<Cuenta> cuentas) {
-        this.cuentas = cuentas;
+    public Cliente(String password, Boolean estado, Persona persona) {
+        this.password = password;
+        this.estado = estado;
+        this.persona = persona;
     }
 
-    public Long getClienteId() {
+    public Cliente(Long id, String password, Boolean estado, Persona persona) {
+        this.clienteId = clienteId;
+        this.password = password;
+        this.estado = estado;
+        this.persona = persona;
+    }
+
+    public Long getId() {
         return clienteId;
     }
 
-    public void setClienteId(Long clienteId) {
-        this.clienteId = clienteId;
+    public void setId(Long id) {
+        this.clienteId = id;
     }
 
     public String getPassword() {
@@ -38,13 +55,20 @@ public class Cliente extends  Persona{
         this.password = password;
     }
 
-    public boolean isEstado() {
+    public Boolean getEstado() {
         return estado;
     }
 
-    public void setEstado(boolean estado) {
+    public void setEstado(Boolean estado) {
         this.estado = estado;
     }
 
+    public Persona getPersona() {
+        return persona;
+    }
 
+    public void setPersona(Persona persona) {
+        this.persona = persona;
+    }
 }
+

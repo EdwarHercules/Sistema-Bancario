@@ -1,16 +1,19 @@
 package com.prueba.test.Services;
 
 import com.prueba.test.Entity.Cliente;
+import com.prueba.test.Entity.Persona;
 import com.prueba.test.Repositories.ClienteRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ClienteServiceTests {
@@ -22,24 +25,44 @@ public class ClienteServiceTests {
     private ClienteService clienteService;
 
     @Test
-    public void testcrearCliente() {
-        // Datos de ejemplo para el nuevo cliente
-        Cliente cliente = new Cliente();
-        cliente.setNombre("Juan Perez");
-        cliente.setGenero("Masculino");
-        cliente.setEdad(30);
-        cliente.setIdentificacion("1234567890");
-        cliente.setDireccion("Calle principal 123");
-        cliente.setTelefono("0987654321");
-        cliente.setClienteId(1L);
-        cliente.setPassword("password");
-        cliente.setEstado(true);
+    public void testObtenerClientePorId() {
+        Long clienteId = 1L;
 
-        Mockito.when(clienteRepository.save(Mockito.any(Cliente.class))).thenReturn(cliente);
+        // Creación de una Persona de prueba
+        Persona mockPersona = new Persona();
+        mockPersona.setId(1L);
+        mockPersona.setNombre("Carlos Alberto");
+        mockPersona.setGenero("Masculino");
+        mockPersona.setEdad(21);
+        mockPersona.setIdentificacion("555555555");
+        mockPersona.setDireccion("2 avenida 3 calle");
+        mockPersona.setTelefono("111-111-111");
 
-        Cliente nuevoCliente = clienteService.crearCliente(cliente);
+        // Creación de un Cliente de prueba
+        Cliente mockCliente = new Cliente();
+        mockCliente.setId(clienteId);
+        mockCliente.setPassword("password");
+        mockCliente.setEstado(true);
+        mockCliente.setPersona(mockPersona);
 
-        assertNotNull(nuevoCliente);
-        assertEquals("Juan Perez", nuevoCliente.getNombre());
+        when(clienteRepository.findById(clienteId)).thenReturn(Optional.of(mockCliente));
+
+        Optional<Cliente> clienteOptional = clienteService.obtenerClientePorId(clienteId);
+
+        assertNotNull(clienteOptional);
+
+        clienteOptional.ifPresent(cliente -> {
+            assertEquals(clienteId, cliente.getId());
+            assertEquals("password", cliente.getPassword());
+            assertEquals(true, cliente.getEstado());
+            assertNotNull(cliente.getPersona());
+            assertEquals("Carlos Alberto", cliente.getPersona().getNombre());
+            assertEquals("Masculino", cliente.getPersona().getGenero());
+            assertEquals(21, cliente.getPersona().getEdad());
+            assertEquals("555555555", cliente.getPersona().getIdentificacion());
+            assertEquals("2 avenida 3 calle", cliente.getPersona().getDireccion());
+            assertEquals("111-111-111", cliente.getPersona().getTelefono());
+        });
     }
 }
+

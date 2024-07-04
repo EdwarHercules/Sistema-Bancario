@@ -1,35 +1,51 @@
 package com.prueba.test.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import java.io.Serializable;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
-public class Cuenta {
+@Table(name = "cuenta")
+public class Cuenta{
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String numeroCuenta;
-    private String tipoCuenta;
-    private double saldo_inicial;;
-    private boolean estado;
 
-    @ManyToOne
+    @Column(name = "numero_cuenta")
+    private String numeroCuenta;
+
+    @Column(name = "tipo_cuenta")
+    private String tipoCuenta;
+
+    @Column(name = "saldo_inicial")
+    private Double saldoInicial;
+
+    @Column(name = "estado")
+    private Boolean estado;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
-    public Cuenta(Long id, String numeroCuenta, String tipoCuenta, double saldo_inicial, boolean estado, Cliente cliente) {
-        this.id = id;
+    public Cuenta() {
+    }
+
+    public Cuenta(String numeroCuenta, String tipoCuenta, Double saldoInicial, Boolean estado, Cliente cliente) {
         this.numeroCuenta = numeroCuenta;
         this.tipoCuenta = tipoCuenta;
-        this.saldo_inicial = saldo_inicial;
+        this.saldoInicial = saldoInicial;
         this.estado = estado;
         this.cliente = cliente;
     }
 
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Cliente cliente) {
+    public Cuenta(Long id, String numeroCuenta, String tipoCuenta, Double saldoInicial, Boolean estado, Cliente cliente) {
+        this.id = id;
+        this.numeroCuenta = numeroCuenta;
+        this.tipoCuenta = tipoCuenta;
+        this.saldoInicial = saldoInicial;
+        this.estado = estado;
         this.cliente = cliente;
     }
 
@@ -57,30 +73,27 @@ public class Cuenta {
         this.tipoCuenta = tipoCuenta;
     }
 
-    public double getsaldo_inicial() {
-        return saldo_inicial;
+    public Double getSaldoInicial() {
+        return saldoInicial;
     }
 
-    public void setsaldo_inicial(double saldo_inicial) {
-        this.saldo_inicial = saldo_inicial;
+    public void setSaldoInicial(Double saldoInicial) {
+        this.saldoInicial = saldoInicial;
     }
 
-    public boolean isEstado() {
+    public Boolean getEstado() {
         return estado;
     }
 
-    public void setEstado(boolean estado) {
+    public void setEstado(Boolean estado) {
         this.estado = estado;
     }
 
-    public Cuenta() {
+    public Cliente getCliente() {
+        return cliente;
     }
 
-    public Cuenta(Long id, String numeroCuenta, String tipoCuenta, double saldo_inicial, boolean estado) {
-        this.id = id;
-        this.numeroCuenta = numeroCuenta;
-        this.tipoCuenta = tipoCuenta;
-        this.saldo_inicial = saldo_inicial;
-        this.estado = estado;
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 }
